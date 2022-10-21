@@ -86,6 +86,7 @@ const patchAPokemon = async (req, res) => {
     res.status(200).json(pokemonDoc)
 }
 
+//Helper function to find a pokemon in the local proxy database
 const findPokemonFromProxy = (id) => {
     for (let i = 0; i < proxyServerDatabase.length; i++){
         if (proxyServerDatabase[i].id == id){
@@ -115,6 +116,7 @@ const upsertAPokemon = async (req, res) => {
     
 }
 
+//Helper function to update a pokemon document
 const updatePokemonDocument = (id, name, type, base, pokemon) => {
     pokemon.id = id
     pokemon.name = name
@@ -122,6 +124,7 @@ const updatePokemonDocument = (id, name, type, base, pokemon) => {
     pokemon.base = base
 }
 
+// !! DONE !! 
 //I need to find a single pokemon, then delete it from the local proxy database
 const deleteAPokemon = async (req, res) => {
     const { id } = req.params
@@ -132,6 +135,7 @@ const deleteAPokemon = async (req, res) => {
             return res.status(404).json({error: "Pokemon not found in local proxy database or in remote DB for deletion"})
         }
     }
+    proxyServerDatabase[id] = null
 
     await Pokemon.findOneAndDelete({id : id}).then(() =>{
         res.status(200).send("Pokemon " + id + " successfully deleted.")
@@ -139,6 +143,7 @@ const deleteAPokemon = async (req, res) => {
     
 }
 
+//Helper function to pad a number with leading zeros
 function lpad(value, padding) {
     var zeroes = new Array(padding+1).join("0");
     return (zeroes + value).slice(-padding);
@@ -149,18 +154,25 @@ const createPokemon = async (req, res) => {
     const {id, name, type, base} = req.body
     existingPokemon = await Pokemon.find({id: id})
     if(!existingPokemon.length){
-        try{
-            const pokemon = await Pokemon.create({id, name, type, base})
-            res.status(200).json(pokemon)
-        } catch(error){
-            res.status(400).json({error: error.message})
+        pokemonDoc = findPokemonFromProxy(id)
+        if (pokemonDoc == null){
+            try{
+                proxyServerDatabase[id] = req.body
+                res.status(200).json(pokemon)
+            } catch(error){
+                res.status(400).json({error: error.message})
+            }
         }
+        
     } else {
-        res.status(400).json(existingPokemon)
+        res.status(400).json(existingPokemon).message(
+            "Pokemon already exists in the database"
+        )
     }
     
 }
 
+//Helper method to merge the local proxy database with the list of pokemon documents retrieved from remote DB
 const mergePokemonLists = (pokemonList) => {
     for (let i = 0; i < pokemonList.length; i++){
         if (proxyServerDatabase[pokemonList[i].id]){
@@ -170,6 +182,7 @@ const mergePokemonLists = (pokemonList) => {
     return pokemonList
 }
 
+//Helper function to update the proxy database
 updateProxyDatabase= (pokemon) => {
     proxyServerDatabase[pokemon] = pokemon
 }
