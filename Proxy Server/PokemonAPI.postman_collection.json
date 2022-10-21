@@ -1,0 +1,204 @@
+{
+	"info": {
+		"_postman_id": "9ca62806-8f2a-4f76-bc28-d1d87e3d4e28",
+		"name": "PokemonAPI",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "18541026"
+	},
+	"item": [
+		{
+			"name": "Get ALL pokemon",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}allPokemon",
+					"host": [
+						"{{URL}}allPokemon"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get a Pokemon",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}pokemon/:id",
+					"host": [
+						"{{URL}}pokemon"
+					],
+					"path": [
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "20000"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Post a Pokemon",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": " {\r\n    \"_id\": \"63362087630bb70e3a073cf9\",\r\n    \"base\": {\r\n      \"HP\": 80,\r\n      \"Attack\": 82,\r\n      \"Defense\": 83,\r\n      \"Speed\": 80,\r\n      \"Speed Attack\": 100,\r\n      \"Speed Defense\": 100\r\n    },\r\n    \"id\": 20000,\r\n    \"name\": {\r\n      \"english\": \"NabilBasaur\",\r\n      \"japanese\": \"フシギバナ\",\r\n      \"chinese\": \"妙蛙花\",\r\n      \"french\": \"Florizarre\"\r\n    },\r\n    \"type\": [\r\n      \"Grass\",\r\n      \"Fire\"\r\n    ],\r\n    \"__v\": 0\r\n  }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{URL}}pokemon",
+					"host": [
+						"{{URL}}pokemon"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Patch a Pokemon",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": " {\r\n    \"_id\": \"63362087630bb70e3a073cf9\",\r\n    \"base\": {\r\n      \"HP\": 80,\r\n      \"Attack\": 82,\r\n      \"Defense\": 83,\r\n      \"Speed\": 80,\r\n      \"Speed Attack\": 100,\r\n      \"Speed Defense\": 100\r\n    },\r\n    \"id\": 20000,\r\n    \"name\": {\r\n      \"english\": \"NabilBasaurus Patched\",\r\n      \"japanese\": \"フシギバナ\",\r\n      \"chinese\": \"妙蛙花\",\r\n      \"french\": \"Florizarre\"\r\n    },\r\n    \"type\": [\r\n      \"Grass\",\r\n      \"Fire\"\r\n    ],\r\n    \"__v\": 0\r\n  }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{URL}}pokemon/:id",
+					"host": [
+						"{{URL}}pokemon"
+					],
+					"path": [
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "20000"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete a Pokemon",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}pokemon/:id",
+					"host": [
+						"{{URL}}pokemon"
+					],
+					"path": [
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "20000"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Upsert a Pokemon",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": " {\r\n    \"base\": {\r\n      \"HP\": 80,\r\n      \"Attack\": 82,\r\n      \"Defense\": 83,\r\n      \"Speed\": 80,\r\n      \"Speed Attack\": 100,\r\n      \"Speed Defense\": 100\r\n    },\r\n    \"id\": 20000,\r\n    \"name\": {\r\n      \"english\": \"NabilBasaurus REX\",\r\n      \"japanese\": \"フシギバナ\",\r\n      \"chinese\": \"妙蛙花\",\r\n      \"french\": \"Florizarre\"\r\n    },\r\n    \"type\": [\r\n      \"Grass\",\r\n      \"Fire\"\r\n    ]\r\n  }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{URL}}pokemon/:id",
+					"host": [
+						"{{URL}}pokemon"
+					],
+					"path": [
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "20000"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get some Pokemon",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}pokemons?count=6&after=3",
+					"host": [
+						"{{URL}}pokemons"
+					],
+					"query": [
+						{
+							"key": "count",
+							"value": "6"
+						},
+						{
+							"key": "after",
+							"value": "3"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Poke Image",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}pokemonImage/:id",
+					"host": [
+						"{{URL}}pokemonImage"
+					],
+					"path": [
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "50"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

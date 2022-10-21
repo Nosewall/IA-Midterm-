@@ -132,7 +132,7 @@ const deleteAPokemon = async (req, res) => {
     const { id } = req.params
     const pokemon = await Pokemon.find({id : id})
     if(!pokemon.length){
-        pokemonDoc = findPokemonFromProxy(id)
+        let pokemonDoc = findPokemonFromProxy(id)
         if (pokemonDoc == null){
             return res.status(404).json({error: "Pokemon not found in local proxy database or in remote DB for deletion"})
         }
@@ -160,6 +160,7 @@ const createPokemon = async (req, res) => {
         pokemonDoc = findPokemonFromProxy(id)
         if (pokemonDoc == null){
             proxyServerDatabase[id] = {id: id, name: name, type: type, base: base}
+            logProxyDatabase()
             return res.status(200).json(proxyServerDatabase[id])
         }
         
