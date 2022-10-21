@@ -139,9 +139,8 @@ const deleteAPokemon = async (req, res) => {
     }
     proxyServerDatabase[id] = null
 
-    await Pokemon.findOneAndDelete({id : id}).then(() =>{
-        res.status(200).send("Pokemon " + id + " successfully deleted.")
-    })
+    res.status(200).send("Pokemon " + id + " successfully deleted from local proxy server DB.")
+
     
 }
 
@@ -156,23 +155,21 @@ function lpad(value, padding) {
 const createPokemon = async (req, res) => {
     const {id, name, type, base} = req.body
     existingPokemon = await Pokemon.find({id: id})
+    try{
     if(!existingPokemon.length){
         pokemonDoc = findPokemonFromProxy(id)
         if (pokemonDoc == null){
-            try{
-                proxyServerDatabase[id] = req.body
-                res.status(200).json(proxyServerDatabase[id]).message("Pokemon added to local proxy database")
-            } catch(error){
-                res.status(400).json({error: error.message})
-            }
+            proxyServerDatabase[id] = {id: id, name: name, type: type, base: base}
+            return res.status(200).json(proxyServerDatabase[id])
         }
         
     } else {
-        res.status(400).json(existingPokemon).message(
-            "Pokemon already exists in the database"
-        )
+        return res.status(400).json(existingPokemon)
     }
-    
+} catch(error){
+    res.status(400)
+    console.log(error)
+    }
 }
 
 //Helper method to merge the local proxy database with the list of pokemon documents retrieved from remote DB
