@@ -1,7 +1,7 @@
 const Pokemon = require("../models/Pokemon")
 
 //Store local chages
-proxyServerDatabase = {}
+proxyServerDatabase = []
 
 //This retrieves a list of pokemon based on the query parameters and then looks to the proxy server for changes
 const getSomePokemon = async (req, res) => {
@@ -31,15 +31,22 @@ const getAPokemon = async (req, res) => {
         return res.status(405).json({error: "No such Pokemon"})
     }
 
+    pokemon = mergePokemonLists(pokemon)
+
     res.status(200).json(pokemon)
 }
 
+//Get all pokemon  - This will now filter all results through a local proxy database
 const getAllPokemon = async (req, res) => {
-    const pokemon = await Pokemon.find({}).sort({id: -1});
+
+    let pokemon = await Pokemon.find({}).sort({id: -1});
+    pokemon = mergePokemonLists(pokemon) // Merge changes with local proxy DB
 
     res.status(200).json(pokemon)
 }
 
+// ! ! ! DONE ! ! ! 
+//This stays the same, it's perfect
 const getPokemonImage = async (req, res) => {
     const {id} = req.params
     paddedId = lpad(id, 3)
@@ -51,6 +58,7 @@ const getPokemonImage = async (req, res) => {
     
     res.send(imageURL)
 }
+
 
 //This method now gets a single pokemon, patches it, then adds it to the changes in the local proxy DB
 const patchAPokemon = async (req, res) => {
@@ -70,17 +78,36 @@ const patchAPokemon = async (req, res) => {
 
 //THis method now upserts a single pokemon, but any changes are stored in the local proxy database
 const upsertAPokemon = async (req, res) => {
-    const {id, name, type, base} = req.params
-    pokemonDoc = await Pokemon.find({id : id})
+    try{
 
-    const pokemonToUpdate = await Pokemon.findOneAndUpdate({id: id}, {
-        ...req.body
-    }, {upsert: true})
+        const {id, name, type, base} = req.params
+        //Now I just grab the individual document
+        pokemonDoc = await Pokemon.find({id : id})
+        //Update the document
+        updatePokemonDocument(id, name, type, base, pokemonDoc)
+        //Upsert the document
+        proxyServerDatabase[id] = pokemonDoc
 
-    res.status(200).json(pokemonToUpdate)
+
+        const pokemonToUpdate = await Pokemon.findOneAndUpdate({id: id}, {
+            ...req.body
+        }, {upsert: true})
+
+        res.status(200).json(pokemonToUpdate)
+    } catch(error){
+        res.status(400).json({error: error.message})
+    }
+    
 }
 
+const updatePokemonDocument = (id, name, type, base, pokemon) => {
+    pokemon.id = id
+    pokemon.name = name
+    pokemon.type = type
+    pokemon.base = base
+}
 
+//I need to find a single pokemon, then delete it from the local proxy database
 const deleteAPokemon = async (req, res) => {
     const { id } = req.params
     const pokemon = await Pokemon.find({id : id})
@@ -114,6 +141,19 @@ const createPokemon = async (req, res) => {
         res.status(400).json(existingPokemon)
     }
     
+}
+
+const mergePokemonLists = (pokemonList) => {
+    for (let i = 0; i < pokemonList.length; i++){
+        if (proxyServerDatabase[pokemonList[i].id]){
+            pokemonList[i] = proxyServerDatabase[pokemonList[i].id]
+        }
+    }
+    return pokemonList
+}
+
+updateProxyDatabase= (pokemon) => {
+    proxyServerDatabase[pokemon] = pokemon
 }
 
 
@@ -151,5 +191,4 @@ module.exports = {
     deleteAPokemon,
     upsertAPokemon,
     getSomePokemon,
-    pokemonsAdvancedFiltering
 }
