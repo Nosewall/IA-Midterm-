@@ -14,7 +14,7 @@ const {
     deleteAPokemon,
     upsertAPokemon,
     getSomePokemon,
-    pokemonsAdvancedFiltering
+    getPokemonWithRegex,
 
 } = require('./controllers/pokemonController')
 
@@ -36,104 +36,6 @@ const database = module.exports = () => {
 };
 database();
 
-async function parseSortArgs(args) {
-    let arg_parsed = {}
-    args.split(',').forEach(arg => {
-      arg[0]==='-' ? arg_parsed[arg.substring(1)]=-1 : arg_parsed[arg]=1;
-    })
-    return arg_parsed;
-  }
-
-async function parseCompArgs(args) {
-    let arg_parsed = {}
-    arg_parsed['$and'] = []
-    let re = /(<=|>=|=|>|<){1}/g;
-    args.split(',').forEach(arg => {
-      var tr_arg = arg.trim()
-      var regexRes = re.exec(tr_arg)
-      var field = "base." + tr_arg.substring(0,regexRes.index)
-      var op = regexRes[0]
-      var val = parseInt(tr_arg.substring(re.lastIndex))
-      var opMDB = {}
-      var currentField = {}
-      switch (op) {
-        case '<=':
-          opMDB['$lte'] = val;
-          break;
-        case '>=':
-          opMDB['$gte'] = val;
-          break;
-        case '=':
-          opMDB['$eq'] = val;
-          break;
-        case '>':
-          opMDB['$gt'] = val;
-          break;
-        case '<':
-          opMDB['$lt'] = val;
-          break;
-        default:
-          return;
-      }
-      currentField[field] = opMDB;
-      console.log(currentField)
-      arg_parsed['$and'].push( currentField );
-    })
-    console.log(arg_parsed)
-    return (arg_parsed['$and'].length!=0) ? arg_parsed : {}
-  }
-
-  app.get('/pokemonsAdvancedFiltering', async (req, res) => {
-    try {
-      comparison_args = (req.query.comparisonOperators!=null) ? await parseCompArgs(req.query.comparisonOperators) : { };
-      sort_args = (req.query.sort!=null) ? await parseSortArgs(req.query.sort) : { "id": "asc" };
-      const pokemon = await pokemonModel.find( comparison_args ).sort( sort_args).skip(req.query.after).limit(req.query.count)
-      return res.json(pokemon)
-    } catch (error) {
-      return res.json( { msg: error.body } )
-    }
-  })
-
-  const deconstructQueryParams = (req) => {
-    let query = {}
-    if (req.query.name) {
-        query.name = req.query.name
-    }
-    if (req.query.type) {
-        query.type = req.query.type
-    }
-    if (req.query.base) {
-        query.base = req.query.base
-    }
-    return query
-
-    const deconstructBaseQueryParams = (req) => {
-        let query = {}
-        if (req.query.hp) {
-            query.hp = req.query.hp
-        }
-        if (req.query.attack) {
-            query.attack = req.query.attack
-        }
-        if (req.query.defense) {
-            query.defense = req.query.defense
-        }
-        if (req.query.spattack) {
-            query.spattack = req.query.spattack
-        }
-        if (req.query.spdefense) {
-            query.spdefense = req.query.spdefense
-        }
-        if (req.query.speed) {
-            query.speed = req.query.speed
-        }
-        return query
-    }
-
-}
-
-
-
 
 app.get('/api/v1/allPokemon', getAllPokemon)
 
@@ -151,7 +53,7 @@ app.delete('/api/v1/pokemon/:id', deleteAPokemon)
 
 app.get('/api/v1/pokemons', getSomePokemon)
 
-app.get('/api/v1/pokemonAdvanced', pokemonsAdvancedFiltering)
+app.get('/api/v1/getPokemonswithRegex', getPokemonWithRegex)
 
 
 

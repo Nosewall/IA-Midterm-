@@ -109,41 +109,16 @@ const createPokemon = async (req, res) => {
     
 }
 
-const pokemonsAdvancedFiltering = async (req, res) => {
 
-    let {id,  page, hitsPerPage, "base.hp": baseHP, "base.Attack": baseAttack,
-        "base.Defense":baseDefence, "base.SP Attack":baseSpAttack, "base.Sp. Defence":baseSpDefence, 
-        "base.Speed":speed, type, "name.english":english, "name.french":french, "name.japanese":japanese, "name.chinese":chinese} = req.query;
-    let query = {}
-
-    if(id){query.id = id}
-    if(type){query.type = type}
-    if(english){query.name.english = english}
-    if(french){query.name.french = french}
-    if(baseHP){query.base.HP = baseHP}
-    if(baseAttack){query.base.Attack = baseAttack}
-    if(baseDefence){query.base.Defense = baseDefence}
-    if(baseSpAttack){query.base["Sp. Attack"] = baseSpAttack}
-    if(baseSpDefence){query.base["Sp. Defense"] = baseSpDefence}
-    if(speed){query.base.Speed = speed}
-    if(japanese){query.name.japanese = japanese}
-    if(chinese){query.name.chinese = chinese}
-
-    if (!hitsPerPage){
-        hitsPerPage = 5;
-    }
-    if (!page){
-        page = 1;
-    }
-    try{
-        let pokelist = await Pokemon.find({query}).sort({id: 1}).limit(hitsPerPage * page)
-        console.log("None Params at all")
-        return res.send(pokelist)
-    } catch(error){
-        res.status(400).json({error: error.message})
-    }
-   
-    
+// Ah, not quite done, almost. Got the query working, but ran out of time to get it working with mongoose.
+const getPokemonWithRegex = async (req, res) => {
+    const {name, searchQuery} = req.query
+    console.log(searchQuery)
+    //This will filter all pokemon that have the name autofilled in the params of the request
+    let regQuery = RegExp('\\b.*(' + searchQuery + ').*\b', 'gi')
+    console.log(regQuery)
+    const pokemon = await Pokemon.find({name: regQuery}).sort({id: -1});
+    res.status(200).json(pokemon)
 }
 
 
@@ -181,5 +156,5 @@ module.exports = {
     deleteAPokemon,
     upsertAPokemon,
     getSomePokemon,
-    pokemonsAdvancedFiltering
+    getPokemonWithRegex,
 }
