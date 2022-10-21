@@ -1,5 +1,9 @@
 const Pokemon = require("../models/Pokemon")
 
+//Store local chages
+proxyServerDatabase = {}
+
+//This retrieves a list of pokemon based on the query parameters and then looks to the proxy server for changes
 const getSomePokemon = async (req, res) => {
     const {count, after} = req.query
     pokemonToReturn = []
@@ -48,6 +52,7 @@ const getPokemonImage = async (req, res) => {
     res.send(imageURL)
 }
 
+//This method now gets a single pokemon, patches it, then adds it to the changes in the local proxy DB
 const patchAPokemon = async (req, res) => {
     const {id, name, type, base} = req.params
     pokemonDoc = await Pokemon.find({id : id})
@@ -63,6 +68,7 @@ const patchAPokemon = async (req, res) => {
     res.status(200).json(pokemonToUpdate)
 }
 
+//THis method now upserts a single pokemon, but any changes are stored in the local proxy database
 const upsertAPokemon = async (req, res) => {
     const {id, name, type, base} = req.params
     pokemonDoc = await Pokemon.find({id : id})
@@ -93,6 +99,7 @@ function lpad(value, padding) {
     return (zeroes + value).slice(-padding);
 }
 
+// New Pokemon are added to the local proxy database
 const createPokemon = async (req, res) => {
     const {id, name, type, base} = req.body
     existingPokemon = await Pokemon.find({id: id})
@@ -106,43 +113,6 @@ const createPokemon = async (req, res) => {
     } else {
         res.status(400).json(existingPokemon)
     }
-    
-}
-
-const pokemonsAdvancedFiltering = async (req, res) => {
-
-    let {id,  page, hitsPerPage, "base.hp": baseHP, "base.Attack": baseAttack,
-        "base.Defense":baseDefence, "base.SP Attack":baseSpAttack, "base.Sp. Defence":baseSpDefence, 
-        "base.Speed":speed, type, "name.english":english, "name.french":french, "name.japanese":japanese, "name.chinese":chinese} = req.query;
-    let query = {}
-
-    if(id){query.id = id}
-    if(type){query.type = type}
-    if(english){query.name.english = english}
-    if(french){query.name.french = french}
-    if(baseHP){query.base.HP = baseHP}
-    if(baseAttack){query.base.Attack = baseAttack}
-    if(baseDefence){query.base.Defense = baseDefence}
-    if(baseSpAttack){query.base["Sp. Attack"] = baseSpAttack}
-    if(baseSpDefence){query.base["Sp. Defense"] = baseSpDefence}
-    if(speed){query.base.Speed = speed}
-    if(japanese){query.name.japanese = japanese}
-    if(chinese){query.name.chinese = chinese}
-
-    if (!hitsPerPage){
-        hitsPerPage = 5;
-    }
-    if (!page){
-        page = 1;
-    }
-    try{
-        let pokelist = await Pokemon.find({query}).sort({id: 1}).limit(hitsPerPage * page)
-        console.log("None Params at all")
-        return res.send(pokelist)
-    } catch(error){
-        res.status(400).json({error: error.message})
-    }
-   
     
 }
 
