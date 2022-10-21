@@ -75,16 +75,27 @@ const patchAPokemon = async (req, res) => {
     pokemonDoc = await Pokemon.find({id : id})
 
     if (!pokemonDoc.length){
-        return res.status(404).json({msg: "Pokemon Not Found for update"})
+        pokemonDoc = findPokemonFromProxy(id)
+        if (pokemonDoc == null){
+            return res.status(404).json({error: "Pokemon not found in local proxy database or in remote DB"})
+        }
     }
-
-    const pokemonToUpdate = await Pokemon.findOneAndUpdate({id: id}, {
-        ...req.body
-    })
-
-    res.status(200).json(pokemonToUpdate)
+    //Update the document if found on local or remote, then save to local (NOT remote)
+    updatePokemonDocument(id, name, type, base, pokemonDoc)
+    proxyServerDatabase[id] = pokemonDoc
+    res.status(200).json(pokemonDoc)
 }
 
+const findPokemonFromProxy = (id) => {
+    for (let i = 0; i < proxyServerDatabase.length; i++){
+        if (proxyServerDatabase[i].id == id){
+            return proxyServerDatabase[i]
+        }
+    }
+    return null
+}
+
+//!! DONE !!
 //THis method now upserts a single pokemon, but any changes are stored in the local proxy database
 const upsertAPokemon = async (req, res) => {
     try{
