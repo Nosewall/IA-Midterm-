@@ -3,6 +3,7 @@ const Pokemon = require("../models/Pokemon")
 //Store local chages
 proxyServerDatabase = []
 
+//!! DONE !! 
 //This retrieves a list of pokemon based on the query parameters and then looks to the proxy server for changes
 const getSomePokemon = async (req, res) => {
     const {count, after} = req.query
@@ -20,6 +21,7 @@ const getSomePokemon = async (req, res) => {
             }
         }
     }
+    pokemonToReturn = mergePokemonLists(pokemonToReturn)
     return res.status(200).send(pokemonToReturn)
 
 }
@@ -149,6 +151,7 @@ function lpad(value, padding) {
     return (zeroes + value).slice(-padding);
 }
 
+//!! DONE !!
 // New Pokemon are added to the local proxy database
 const createPokemon = async (req, res) => {
     const {id, name, type, base} = req.body
@@ -158,7 +161,7 @@ const createPokemon = async (req, res) => {
         if (pokemonDoc == null){
             try{
                 proxyServerDatabase[id] = req.body
-                res.status(200).json(pokemon)
+                res.status(200).json(proxyServerDatabase[id]).message("Pokemon added to local proxy database")
             } catch(error){
                 res.status(400).json({error: error.message})
             }
