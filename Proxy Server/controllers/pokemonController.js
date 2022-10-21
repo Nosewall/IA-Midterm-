@@ -68,7 +68,7 @@ const getPokemonImage = async (req, res) => {
     res.send(imageURL)
 }
 
-
+// !! DONE !!
 //This method now gets a single pokemon, patches it, then adds it to the changes in the local proxy DB
 const patchAPokemon = async (req, res) => {
     const {id, name, type, base} = req.params
@@ -127,7 +127,10 @@ const deleteAPokemon = async (req, res) => {
     const { id } = req.params
     const pokemon = await Pokemon.find({id : id})
     if(!pokemon.length){
-        return res.status(404).json({error: "No such Pokemon"})
+        pokemonDoc = findPokemonFromProxy(id)
+        if (pokemonDoc == null){
+            return res.status(404).json({error: "Pokemon not found in local proxy database or in remote DB for deletion"})
+        }
     }
 
     await Pokemon.findOneAndDelete({id : id}).then(() =>{
