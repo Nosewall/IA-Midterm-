@@ -117,8 +117,9 @@ const getPokemonWithRegex = async (req, res) => {
     //This will filter all pokemon that have the name autofilled in the params of the request
     let regQuery = RegExp('\\b.*(' + searchQuery + ').*\b', 'gi')
     console.log(regQuery)
-    const pokemon = await Pokemon.find({name: regQuery}).sort({id: -1});
+    const pokemon = await Pokemon.find({name: {$regex: regQuery}})
     res.status(200).json(pokemon)
+
 }
 
 
