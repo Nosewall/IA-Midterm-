@@ -24,18 +24,27 @@ const getSomePokemon = async (req, res) => {
 
 }
 
+//!! DONE !!
+//This method now gets a single pokemon, and checks for any changes on the proxy, then returns the changed document
 const getAPokemon = async (req, res) => {
     const { id } = req.params
-    const pokemon = await Pokemon.find({id : id})
+    let pokemon = await Pokemon.find({id : id})
     if(!pokemon.length){
         return res.status(405).json({error: "No such Pokemon"})
     }
 
     pokemon = mergePokemonLists(pokemon)
-
+    logProxyDatabase()
     res.status(200).json(pokemon)
 }
 
+//This is for testing to ensure that data is being used properly
+const logProxyDatabase = () => {
+    console.log("Proxy Database:")
+    console.log(proxyServerDatabase)
+}
+
+//!! DONE !!
 //Get all pokemon  - This will now filter all results through a local proxy database
 const getAllPokemon = async (req, res) => {
 
@@ -87,13 +96,8 @@ const upsertAPokemon = async (req, res) => {
         updatePokemonDocument(id, name, type, base, pokemonDoc)
         //Upsert the document
         proxyServerDatabase[id] = pokemonDoc
-
-
-        const pokemonToUpdate = await Pokemon.findOneAndUpdate({id: id}, {
-            ...req.body
-        }, {upsert: true})
-
-        res.status(200).json(pokemonToUpdate)
+        logProxyDatabase()  
+        res.status(200).json(pokemonDoc)
     } catch(error){
         res.status(400).json({error: error.message})
     }
